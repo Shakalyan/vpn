@@ -1,9 +1,9 @@
-COMPILER = clang++
-LANGUAGE = cpp
+COMPILER = gcc
+LANGUAGE = c
 
-SOURCES = main
+SOURCES = main vpn/tunnel server/server client/client
 LIBS = 
-SUBDIRS = 
+SUBDIRS = vpn server client
 MKSUBDIRS = $(addprefix $(OBJPATH)/, $(SUBDIRS))
 
 SRCPATH = ./src
