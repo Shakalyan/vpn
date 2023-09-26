@@ -10,6 +10,15 @@ static uint64_t get_hash(char* key) {
     return hash;
 }
 
+static inline void free_element_value(hashmap_t* map, hmap_el_t* el) {
+    if (el->free_value) el->free_value(el->value);
+    else if (map->free_value) map->free_value(el->value);
+}
+
+/**
+ * @brief   You can pass free_value here for most elements and also pass it in hmap_put for specific.
+ *          If free_value is NULL, then you must pass it every time you calling hmap_put function.
+ */
 hashmap_t* hmap_alloc(size_t modulus, free_value_ptr_t free_value) {
     hashmap_t* map = malloc(sizeof(hashmap_t));
     map->buckets = malloc(sizeof(hmap_bucket_t*) * modulus);
@@ -32,14 +41,15 @@ void* hmap_get(hashmap_t* map, char* key) {
     return NULL;
 }
 
-void hmap_put(hashmap_t* map, char* key, void* value, size_t value_size) {
+void hmap_put(hashmap_t* map, char* key, void* value, size_t value_size, free_value_ptr_t free_value) {
     size_t bidx = get_hash(key) % map->modulus;
     hmap_bucket_t** bucket = &map->buckets[bidx];
     while (*bucket) {
         if (strcmp(key, (*bucket)->el.key) == 0) {
-            map->free_value((*bucket)->el.value);
+            free_element_value(map, &(*bucket)->el);
             (*bucket)->el.value = malloc(value_size);
             memcpy((*bucket)->el.value, value, value_size);
+            (*bucket)->el.free_value = free_value;
             return;
         }
         bucket = &(*bucket)->next;
@@ -53,6 +63,7 @@ void hmap_put(hashmap_t* map, char* key, void* value, size_t value_size) {
     (*bucket)->el.value = malloc(value_size);
     memcpy((*bucket)->el.value, value, value_size);
 
+    (*bucket)->el.free_value = free_value;
     (*bucket)->next = NULL;
 }
 
@@ -63,7 +74,7 @@ void hmap_free(hashmap_t* map) {
         while (current) {
             next = current->next;
             free(current->el.key);
-            map->free_value(current->el.value);
+            free_element_value(map, &current->el);
             free(current);
             current = next;
         }
