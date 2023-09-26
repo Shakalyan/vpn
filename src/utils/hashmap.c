@@ -41,29 +41,44 @@ void* hmap_get(hashmap_t* map, char* key) {
     return NULL;
 }
 
-void hmap_put(hashmap_t* map, char* key, void* value, size_t value_size, free_value_ptr_t free_value) {
+void hmap_put(hashmap_t* map, char* key, void* value, size_t value_size, free_value_ptr_t free_value, int copy) {
     size_t bidx = get_hash(key) % map->modulus;
     hmap_bucket_t** bucket = &map->buckets[bidx];
+
     while (*bucket) {
-        if (strcmp(key, (*bucket)->el.key) == 0) {
-            free_element_value(map, &(*bucket)->el);
-            (*bucket)->el.value = malloc(value_size);
-            memcpy((*bucket)->el.value, value, value_size);
-            (*bucket)->el.free_value = free_value;
+        hmap_el_t* el = &(*bucket)->el;
+        if (strcmp(key, el->key) == 0) {
+            free_element_value(map, el);
+            if (copy) {
+                el->value = malloc(value_size);
+                memcpy(el->value, value, value_size);
+            }
+            else {
+                el->value = value;
+            }            
+            el->free_value = free_value;
             return;
         }
+
         bucket = &(*bucket)->next;
     }
+
     *bucket = malloc(sizeof(hmap_bucket_t));
+    hmap_el_t* el = &(*bucket)->el;
 
     size_t key_size = strlen(key)+1;
-    (*bucket)->el.key = malloc(key_size);
-    memcpy((*bucket)->el.key, key, key_size);
+    el->key = malloc(key_size);
+    memcpy(el->key, key, key_size);
 
-    (*bucket)->el.value = malloc(value_size);
-    memcpy((*bucket)->el.value, value, value_size);
+    if (copy) {
+        el->value = malloc(value_size);
+        memcpy(el->value, value, value_size);
+    }
+    else {
+        el->value = value;
+    }  
+    el->free_value = free_value;
 
-    (*bucket)->el.free_value = free_value;
     (*bucket)->next = NULL;
 }
 

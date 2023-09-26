@@ -29,7 +29,7 @@ hashmap_t* hmap_alloc(size_t modulus, free_value_ptr_t free_value);
 
 void* hmap_get(hashmap_t* map, char* key);
 
-void hmap_put(hashmap_t* map, char* key, void* value, size_t value_size, free_value_ptr_t free_value);
+void hmap_put(hashmap_t* map, char* key, void* value, size_t value_size, free_value_ptr_t free_value, int copy);
 
 void hmap_free(hashmap_t* map);
 
