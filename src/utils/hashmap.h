@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef void (*free_value_ptr)(void*);
+typedef void (*free_value_ptr_t)(void*);
 
 typedef struct hmap_el_t {
     char* key;
@@ -19,12 +19,12 @@ typedef struct hmap_bucket_t {
 typedef struct hashmap_t {
     size_t size;
     size_t modulus;
-    free_value_ptr free_value;
+    free_value_ptr_t free_value;
     hmap_bucket_t** buckets;
 } hashmap_t;
 
 
-hashmap_t* hmap_alloc(size_t modulus, free_value_ptr free_value);
+hashmap_t* hmap_alloc(size_t modulus, free_value_ptr_t free_value);
 
 void* hmap_get(hashmap_t* map, char* key);
 

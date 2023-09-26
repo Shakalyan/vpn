@@ -10,7 +10,7 @@ static uint64_t get_hash(char* key) {
     return hash;
 }
 
-hashmap_t* hmap_alloc(size_t modulus, free_value_ptr free_value) {
+hashmap_t* hmap_alloc(size_t modulus, free_value_ptr_t free_value) {
     hashmap_t* map = malloc(sizeof(hashmap_t));
     map->buckets = malloc(sizeof(hmap_bucket_t*) * modulus);
     memset(map->buckets, 0, sizeof(hmap_bucket_t*) * modulus);
