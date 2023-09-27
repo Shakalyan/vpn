@@ -83,6 +83,7 @@ void hmap_put(hashmap_t* map, const char* key, void* value, size_t value_size, f
 }
 
 void hmap_free(hashmap_t* map) {
+    if (!map) return;
     hmap_bucket_t *current = NULL, *next = NULL;
     for (int i = 0; i < map->modulus; ++i) {
         current = map->buckets[i];

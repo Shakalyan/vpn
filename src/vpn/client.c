@@ -1,5 +1,5 @@
 #include "client.h"
-#include "../vpn/tunnel.h"
+#include "tunnel.h"
 #include <stdio.h>
 #include <sys/socket.h>
 #include <unistd.h>
