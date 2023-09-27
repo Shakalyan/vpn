@@ -9,6 +9,7 @@ typedef struct interface_conf_t {
     char name[256];
     char ip[256];
     char mask[256];
+    int MTU;
 } interface_conf_t;
 
 typedef struct network_conf_t {

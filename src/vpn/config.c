@@ -10,6 +10,7 @@
 
 #define DEFAULT_PORT "4242"
 #define DEFAULT_IFNAME ""
+#define DEFAULT_MTU "1500"
 #define DEFAULT_NET_SETUP "./setup.sh"
 #define DEFAULT_NET_CLEANUP "./cleanup.sh"
 
@@ -76,10 +77,12 @@ int parse_server_conf(const char* path, server_conf_t* server_conf, network_conf
     IF_NULL_EXIT(interface_obj, "Interface configuration is not present");
     char* ifname = (char*)hmap_get(interface_obj, "name");
     IF_NULL_SET_DEFAULT(ifname, DEFAULT_IFNAME);
-    char *ifip = (char*)hmap_get(interface_obj, "ip");
+    char* ifip = (char*)hmap_get(interface_obj, "ip");
     IF_NULL_EXIT(ifip, "Interface ip is not present");
-    char *ifmask = (char*)hmap_get(interface_obj, "mask");
+    char* ifmask = (char*)hmap_get(interface_obj, "mask");
     IF_NULL_EXIT(ifmask, "Interface mask is not present");
+    char* MTU = (char*)hmap_get(interface_obj, "MTU");
+    IF_NULL_SET_DEFAULT(MTU, DEFAULT_MTU);
     
     obj_array_t* clients = (obj_array_t*)hmap_get(map, "clients");
     IF_NULL_EXIT(clients, "Clients configuration is not present");
@@ -95,6 +98,7 @@ int parse_server_conf(const char* path, server_conf_t* server_conf, network_conf
         strcpy(server_conf->clients[i].pubkey, pubkey);
     }
     server_conf->port = atoi(port);
+    server_conf->interface.MTU = atoi(MTU);
     strcpy(server_conf->prikey, prikey);
     strcpy(server_conf->interface.name, ifname);
     strcpy(server_conf->interface.ip, ifip);
@@ -155,11 +159,14 @@ int parse_client_conf(const char* path, client_conf_t* client_conf, network_conf
     IF_NULL_EXIT(ifip, "Interface ip is not present");
     char *ifmask = (char*)hmap_get(interface_obj, "mask");
     IF_NULL_EXIT(ifmask, "Interface mask is not present");
+    char* MTU = (char*)hmap_get(interface_obj, "MTU");
+    IF_NULL_SET_DEFAULT(MTU, DEFAULT_MTU);
 
     strcpy(client_conf->server.ip, ip);
     strcpy(client_conf->server.pubkey, pubkey);
     client_conf->server.port = atoi(port);
 
+    client_conf->interface.MTU = atoi(MTU);
     strcpy(client_conf->interface.name, ifname);
     strcpy(client_conf->interface.ip, ifip);
     strcpy(client_conf->interface.mask, ifmask);

@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 #include <linux/ip.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #define CLIENTS_CNT 1
 
@@ -65,15 +66,15 @@ static client_t* find_client(client_t* clients, in_addr_t daddr) {
     return NULL;
 }
 
-int start_server(const char* tun_name, const char* addr_str, const char* mask_str, int port, const int MTU) {
+int start_server(server_conf_t* conf) {
 
-    int tun_fd = create_tun(tun_name, addr_str, mask_str);
+    int tun_fd = create_tun(conf->interface.name, conf->interface.ip, conf->interface.mask);
     if (tun_fd < 0) {
         printf("Create tun error\n");
         return -1;
     }
 
-    int socket_fd = setup_socket(port);
+    int socket_fd = setup_socket(conf->port);
     if (socket_fd < 0) {
         printf("Create socket error\n");
         return -1;
@@ -90,7 +91,7 @@ int start_server(const char* tun_name, const char* addr_str, const char* mask_st
 
     struct in_addr helper_addr;
 
-    char buffer[MTU];
+    char* buffer = malloc(conf->interface.MTU);
     while (1) {
         memset(&client_addr, 0, sizeof(client_addr));
 
@@ -100,7 +101,7 @@ int start_server(const char* tun_name, const char* addr_str, const char* mask_st
         select(max_fd+1, &read_fds, NULL, NULL, NULL);
 
         if (FD_ISSET(socket_fd, &read_fds)) {
-            int recv_cnt = recvfrom(socket_fd, buffer, MTU, 0, (struct sockaddr*)&client_addr, &client_addr_len);
+            int recv_cnt = recvfrom(socket_fd, buffer, conf->interface.MTU, 0, (struct sockaddr*)&client_addr, &client_addr_len);
             if (recv_cnt < 0) {
                 perror("recvfrom socket");
                 return -1;
@@ -120,7 +121,7 @@ int start_server(const char* tun_name, const char* addr_str, const char* mask_st
         }
 
         if (FD_ISSET(tun_fd, &read_fds)) {
-            int read_cnt = read(tun_fd, buffer, MTU);
+            int read_cnt = read(tun_fd, buffer, conf->interface.MTU);
             if (read_cnt < 0) {
                 perror("read from tun");
                 return -1;

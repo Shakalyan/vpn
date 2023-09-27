@@ -8,67 +8,43 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <linux/ip.h>
+#include "vpndef.h"
 
 int create_tun(const char* name, const char* addr_str, const char* mask_str) {
+    int tun_fd = -1, sock_fd = -1;
 
-    int tun_fd = open("/dev/net/tun", O_RDWR);
-    if (tun_fd < 0) {
-        perror("Open /dev/net/tun");
-        return -1;
-    }
+    tun_fd = open("/dev/net/tun", O_RDWR);
+    EXIT_LOG_ERRNO_IF(tun_fd < 0, "Open /dev/net/tun");
 
     struct ifreq ifr;
     memset(&ifr, 0, sizeof(ifr));
     memcpy(&ifr.ifr_ifrn.ifrn_name, name, strlen(name)+1);
     ifr.ifr_flags = IFF_TUN | IFF_NO_PI;
-
-    if (ioctl(tun_fd, TUNSETIFF, (void*)&ifr)) {
-        perror("Ioctl TUNSETIFF");
-        close(tun_fd);
-        return -1;
-    }
+    EXIT_LOG_ERRNO_IF(ioctl(tun_fd, TUNSETIFF, (void*)&ifr) < 0, "ioctl TUNSETIFF");
 
     struct sockaddr_in addr, mask;
     addr.sin_family = AF_INET;
-    if (inet_pton(AF_INET, addr_str, &addr.sin_addr) < 0) {
-        perror("INET PTON");
-        return -1;
-    }
     mask.sin_family = AF_INET;
-    if (inet_pton(AF_INET, mask_str, &mask.sin_addr) < 0) {
-        perror("INET PTON");
-        return -1;
-    }
+    EXIT_LOG_ERRNO_IF(inet_pton(AF_INET, addr_str, &addr.sin_addr) < 0, "Convert address to number");
+    EXIT_LOG_ERRNO_IF(inet_pton(AF_INET, mask_str, &mask.sin_addr) < 0, "Convert mask to number");
     ifr.ifr_ifru.ifru_addr = *(struct sockaddr*)&addr;
 
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) {
-        perror("socket");
-        return -1;
-    }
+    sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+    EXIT_LOG_ERRNO_IF(sock_fd < 0, "Create socket");
 
-    if (ioctl(sockfd, SIOCSIFADDR, (void*)&ifr)) {
-        perror("Ioctl SIOCSIFADDR");
-        close(tun_fd);
-        close(sockfd);
-        return -1;
-    }
+    EXIT_LOG_ERRNO_IF(ioctl(sock_fd, SIOCSIFADDR, (void*)&ifr) < 0, "ioctl SIOCSIFADDR");
 
     ifr.ifr_ifru.ifru_netmask = *(struct sockaddr*)&mask;
-    if (ioctl(sockfd, SIOCSIFNETMASK, (void*)&ifr)) {
-        perror("Ioctl SIOCSIFNETMASK");
-        close(tun_fd);
-        close(sockfd);
-        return -1;
-    }
+    EXIT_LOG_ERRNO_IF(ioctl(sock_fd, SIOCSIFNETMASK, (void*)&ifr) < 0, "ioctl SIOCSIFNETMASK");
 
     ifr.ifr_ifru.ifru_flags |= IFF_UP | IFF_RUNNING;
-    if (ioctl(sockfd, SIOCSIFFLAGS, (void*)&ifr)) {
-        perror("Ioctl SIOCSIFFLAGS");
-        close(tun_fd);
-        close(sockfd);
-        return -1;
-    }
+    EXIT_LOG_ERRNO_IF(ioctl(sock_fd, SIOCSIFFLAGS, (void*)&ifr) < 0, "ioctl SIOCSIFFLAGS");
 
+    close(sock_fd);
     return tun_fd;
+
+Error:
+    close(tun_fd);
+    close(sock_fd);
+    return -1;
 }

@@ -9,13 +9,13 @@
         "prikey": "path to client prikey",
         "interface": {
             "name": "",
-            "ip": "10.10.0.1",
+            "ip": "10.10.0.2",
             "mask": "255.255.255.0"
         }
     },
 
     "network": {
-        "setup": "test.sh",
-        "cleanup": "cleanup.sh"
+        "setup": "./local_client.sh add",
+        "cleanup": "./local_client.sh del"
     }
 }
