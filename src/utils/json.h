@@ -10,6 +10,6 @@ typedef struct obj_array_t {
 } obj_array_t;
 
 
-hashmap_t* JSON_parse(char *json, size_t size);
+hashmap_t* JSON_parse(const char *json, size_t size);
 
 #endif

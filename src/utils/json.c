@@ -6,7 +6,7 @@
 #define TRUE 1
 #define FALSE 0
 
-static int skip_blank(char *json, size_t size, size_t* offset) {
+static int skip_blank(const char *json, size_t size, size_t* offset) {
     if (*offset >= size)
         return FALSE;
     static char blank[] = " \t\n";
@@ -35,7 +35,7 @@ static int is_name_valid(char sym) {
     return FALSE;
 }
 
-static int retrieve_str(char* json, size_t size, size_t* offset, char* dst) {
+static int retrieve_str(const char* json, size_t size, size_t* offset, char* dst) {
     char str_sym = json[*offset];
     ++(*offset);
     size_t from = *offset;
@@ -76,9 +76,9 @@ static void objarr_free(obj_array_t* arr) {
     free(arr);
 }
 
-static hashmap_t* parse_object(char* json, size_t size, size_t* offset);
+static hashmap_t* parse_object(const char* json, size_t size, size_t* offset);
 
-static obj_array_t* parse_array(char* json, size_t size, size_t* offset) {
+static obj_array_t* parse_array(const char* json, size_t size, size_t* offset) {
     obj_array_t* objarr = objarr_alloc(4);
     while (*offset != size) {
         ++(*offset);
@@ -100,7 +100,7 @@ Error:
     return NULL;
 }
 
-static hashmap_t* parse_object(char* json, size_t size, size_t* offset) {
+static hashmap_t* parse_object(const char* json, size_t size, size_t* offset) {
     hashmap_t* obj = hmap_alloc(16, NULL);
     const size_t str_max_size = 256;
     char key[str_max_size], value_str[str_max_size];
@@ -145,7 +145,7 @@ Error:
     return NULL;
 }
 
-hashmap_t* JSON_parse(char *json, size_t size) {
+hashmap_t* JSON_parse(const char *json, size_t size) {
     size_t offset = 0;
     skip_blank(json, size, &offset);
     if (json[offset] != '{') {

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static uint64_t get_hash(char* key) {
+static uint64_t get_hash(const char* key) {
     uint64_t hash = 0;
     for (int i = 1; *key != '\0'; ++i, ++key) {
         hash += *key * i;
@@ -10,7 +10,7 @@ static uint64_t get_hash(char* key) {
     return hash;
 }
 
-static inline void free_element_value(hashmap_t* map, hmap_el_t* el) {
+static inline void free_element_value(const hashmap_t* map, hmap_el_t* el) {
     if (el->free_value) el->free_value(el->value);
     else if (map->free_value) map->free_value(el->value);
 }
@@ -29,7 +29,7 @@ hashmap_t* hmap_alloc(size_t modulus, free_value_ptr_t free_value) {
     return map;
 }
 
-void* hmap_get(hashmap_t* map, char* key) {
+void* hmap_get(const hashmap_t* map, const char* key) {
     size_t bidx = get_hash(key) % map->modulus;
     hmap_bucket_t* bucket = map->buckets[bidx];
     while (bucket) {
@@ -41,7 +41,7 @@ void* hmap_get(hashmap_t* map, char* key) {
     return NULL;
 }
 
-void hmap_put(hashmap_t* map, char* key, void* value, size_t value_size, free_value_ptr_t free_value, int copy) {
+void hmap_put(hashmap_t* map, const char* key, void* value, size_t value_size, free_value_ptr_t free_value, int copy) {
     size_t bidx = get_hash(key) % map->modulus;
     hmap_bucket_t** bucket = &map->buckets[bidx];
 
