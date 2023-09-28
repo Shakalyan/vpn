@@ -23,7 +23,8 @@ typedef struct client_t {
 } client_t;
 
 
-static int setup_socket(int port) {
+static int setup_socket(int port) 
+{
     int socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
     if (socket_fd < 0) {
         perror("Create server socket");
@@ -44,11 +45,13 @@ static int setup_socket(int port) {
     return socket_fd;
 }
 
-static void init_clients(client_t* clients) {
+static void init_clients(client_t* clients) 
+{
     clients[0].id.saddr = inet_addr("10.10.0.2");
 }
 
-static int set_client_info(client_t* clients, const struct iphdr* ip_header, const struct sockaddr_in* client_addr) {
+static int set_client_info(client_t* clients, const struct iphdr* ip_header, const struct sockaddr_in* client_addr) 
+{
     for (int i = 0; i < CLIENTS_CNT; ++i) {
         if (clients[i].id.saddr == ip_header->addrs.saddr) {
             memcpy(&clients[i].addr, client_addr, sizeof(struct sockaddr_in));
@@ -58,7 +61,8 @@ static int set_client_info(client_t* clients, const struct iphdr* ip_header, con
     return 0;
 }
 
-static client_t* find_client(client_t* clients, in_addr_t daddr) {
+static client_t* find_client(client_t* clients, in_addr_t daddr) 
+{
     for (int i = 0; i < CLIENTS_CNT; ++i) {
         if (clients[i].id.saddr == daddr)
             return &clients[i];
@@ -66,8 +70,8 @@ static client_t* find_client(client_t* clients, in_addr_t daddr) {
     return NULL;
 }
 
-int start_server(server_conf_t* conf) {
-
+int start_server(server_conf_t* conf) 
+{
     int tun_fd = create_tun(conf->interface.name, conf->interface.ip, conf->interface.mask);
     if (tun_fd < 0) {
         printf("Create tun error\n");

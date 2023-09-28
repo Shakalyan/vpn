@@ -10,7 +10,8 @@
 #include <linux/ip.h>
 #include <stdlib.h>
 
-int start_client(client_conf_t* conf) {
+int start_client(client_conf_t* conf) 
+{
 
     int tun_fd = create_tun(conf->interface.name, conf->interface.ip, conf->interface.mask);
     if (tun_fd < 0) {

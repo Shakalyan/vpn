@@ -6,41 +6,41 @@
 #define MAX_STR_SIZE 256
 
 typedef struct interface_conf_t {
-    char name[256];
-    char ip[256];
-    char mask[256];
+    char name[MAX_STR_SIZE];
+    char ip[MAX_STR_SIZE];
+    char mask[MAX_STR_SIZE];
     int MTU;
 } interface_conf_t;
 
 typedef struct network_conf_t {
-    char setup[256];
-    char cleanup[256];
+    char setup[MAX_STR_SIZE];
+    char cleanup[MAX_STR_SIZE];
 } network_conf_t;
 
 
 typedef struct sc_client_conf_t {
-    char ip[256];
-    char pubkey[256];
+    char ip[MAX_STR_SIZE];
+    char pubkey[MAX_STR_SIZE];
 } sc_client_conf_t;
 
 typedef struct server_conf_t {
     interface_conf_t interface;
     sc_client_conf_t* clients;
-    char prikey[256];
+    char prikey[MAX_STR_SIZE];
     int port;
 } server_conf_t;
 
 
 typedef struct cc_server_conf_t {
-    char ip[256];
-    char pubkey[256];
+    char ip[MAX_STR_SIZE];
+    char pubkey[MAX_STR_SIZE];
     int port;
 } cc_server_conf_t;
 
 typedef struct client_conf_t {
     interface_conf_t interface;
     cc_server_conf_t server;
-    char prikey[256];
+    char prikey[MAX_STR_SIZE];
 } client_conf_t;
 
 

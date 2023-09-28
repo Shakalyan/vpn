@@ -29,7 +29,8 @@
     }                                   \
 }
 
-static int read_file(const char* path, char** out, size_t* size) {
+static int read_file(const char* path, char** out, size_t* size) 
+{
     FILE* file = fopen(path, "r");
     if (!file) {
         perror("Open file error");
@@ -45,18 +46,21 @@ static int read_file(const char* path, char** out, size_t* size) {
     return TRUE;
 }
 
-server_conf_t* server_conf_alloc(size_t clients_size) {
+server_conf_t* server_conf_alloc(size_t clients_size) 
+{
     server_conf_t* conf = malloc(sizeof(server_conf_t));
     conf->clients = malloc(sizeof(sc_client_conf_t) * clients_size);
     return conf;
 }
 
-void server_conf_free(server_conf_t* conf) {
+void server_conf_free(server_conf_t* conf) 
+{
     free(conf->clients);
     free(conf);
 }
 
-int parse_server_conf(const char* path, server_conf_t* server_conf, network_conf_t* network_conf) {
+int parse_server_conf(const char* path, server_conf_t* server_conf, network_conf_t* network_conf) 
+{
     size_t json_size;
     char* json = NULL;
     hashmap_t* map = NULL;

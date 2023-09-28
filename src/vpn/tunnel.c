@@ -10,7 +10,8 @@
 #include <linux/ip.h>
 #include "vpndef.h"
 
-int create_tun(const char* name, const char* addr_str, const char* mask_str) {
+int create_tun(const char* name, const char* addr_str, const char* mask_str) 
+{
     int tun_fd = -1, sock_fd = -1;
 
     tun_fd = open("/dev/net/tun", O_RDWR);

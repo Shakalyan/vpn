@@ -8,7 +8,8 @@
 #include "vpn/config.h"
 #include <unistd.h>
 
-int run(char* script) {
+int run(char* script) 
+{
     int inside_param = 0, params_cnt = 0, param_from = 0, param_to = 0;
     char param_sym = 0;
     for (char* s = script; *s != '\0'; ++s, ++param_to) {
@@ -46,8 +47,8 @@ int run(char* script) {
     return status;
 }
 
-int main(int argc, char** argv) {
-
+int main(int argc, char** argv) 
+{
     if (argc != 2) {
         printf("Bad params\n");
         return 1;
