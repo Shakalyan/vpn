@@ -3,17 +3,34 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+char ujson_err[256];
+
+#define FREE goto Error
+
+#define WERR_RET(RET, TEMPLATE, ...) {          \
+    sprintf(ujson_err, TEMPLATE, __VA_ARGS__);   \
+    return RET;                                 \
+}
+
+#define WERR_FREE(TEMPLATE, ...) {              \
+    sprintf(ujson_err, TEMPLATE, __VA_ARGS__);   \
+    FREE;                                       \
+}
+
+const char* get_ujson_err() {
+    return ujson_err;
+}
+
 #define TRUE 1
 #define FALSE 0
+typedef char bool;
 
-static int skip_blank(const char *json, size_t size, size_t* offset) 
+
+static bool skip_blank(const char *json, size_t size, size_t* offset) 
 {
-    if (*offset >= size)
-        return FALSE;
-
     static char blank[] = " \t\n";
-    while (*offset != size) {
-        int is_blank = FALSE;
+    while (*offset < size) {
+        bool is_blank = FALSE;
         for (char* b = blank; *b != '\0'; ++b) {
             if (json[*offset] == *b) {
                 is_blank = TRUE;
@@ -24,36 +41,20 @@ static int skip_blank(const char *json, size_t size, size_t* offset)
         ++(*offset);
     }
 
-    return FALSE;
+    WERR_RET(FALSE, "Reached end of JSON while skipping blanks%s", "");
 }
 
-static int is_name_valid(char sym) 
-{
-    static char valid[] = ". ";
-
-    if ((sym >= 'a' && sym <= 'z') || (sym >= 'A' && sym <= 'Z') || (sym >= '0' && sym <= '9'))
-        return TRUE;
-    
-    for (char* v = valid; *v != '\0'; ++v) {
-        if (sym == *v)
-            return TRUE;
-    }
-
-    return FALSE;
-}
-
-static int retrieve_str(const char* json, size_t size, size_t* offset, char* dst) 
+static bool retrieve_str(const char* json, size_t size, size_t* offset, char* dst) 
 {
     char str_sym = json[*offset];
     ++(*offset);
     size_t from = *offset;
 
-    while (*offset != size && is_name_valid(json[*offset])) 
+    while (*offset != size && str_sym != json[*offset]) 
         ++(*offset);
 
-    if (*offset == size || str_sym != json[*offset]) {
-        return FALSE;
-    }
+    if (*offset >= size)
+        WERR_RET(FALSE, "Reached end of JSON while parsing string%s", "");
 
     size_t str_size = *offset - from;
     memcpy(dst, json + from, str_size);
@@ -99,16 +100,26 @@ static obj_array_t* parse_array(const char* json, size_t size, size_t* offset)
     obj_array_t* objarr = objarr_alloc(4);
     while (*offset != size) {
         ++(*offset);
-        if (!skip_blank(json, size, offset)) goto Error;
-        if (json[*offset] != '{') goto Error;
+        if (!skip_blank(json, size, offset))
+            FREE;
+        
+        if (json[*offset] != '{')
+            WERR_FREE("'%c': not an object inside array at index %lu", json[*offset], *offset);
+        
         hashmap_t* obj = parse_object(json, size, offset);
-        if (!obj) goto Error;
+        if (!obj)
+            FREE;
+
         add_to_objarr(objarr, obj);
         ++(*offset);
-        if (!skip_blank(json, size, offset)) goto Error;
+
+        if (!skip_blank(json, size, offset))
+            FREE;
+
         if (json[*offset] == ',') continue;
         if (json[*offset] == ']') break;
-        goto Error;
+
+        WERR_FREE("'%c': expected ',' or ']' at index %lu", json[*offset], *offset);
     }
     return objarr;
 
@@ -124,41 +135,55 @@ static hashmap_t* parse_object(const char* json, size_t size, size_t* offset)
     char key[str_max_size], value_str[str_max_size];
     while (*offset != size) {
         ++(*offset);
-        if (!skip_blank(json, size, offset)) goto Error;
+        if (!skip_blank(json, size, offset))
+            FREE;
 
         char curr_sym = json[*offset];
-        if (curr_sym != '\'' && curr_sym != '"') goto Error;
+        if (curr_sym != '\'' && curr_sym != '"')
+            WERR_FREE("'%c': expected a string name at index %lu", json[*offset], *offset);
         
-        if (!retrieve_str(json, size, offset, key)) goto Error;
+        if (!retrieve_str(json, size, offset, key))
+            FREE;
+        
         ++(*offset);
-        if (!skip_blank(json, size, offset)) goto Error;
-        if (json[*offset] != ':') goto Error;
+        if (!skip_blank(json, size, offset))
+            FREE;
+
+        if (json[*offset] != ':')
+            WERR_FREE("'%c': expected a ':' at index %lu", json[*offset], *offset);
+
         ++(*offset);
-        if (!skip_blank(json, size, offset)) goto Error;
+        if (!skip_blank(json, size, offset)) 
+            FREE;
 
         if (json[*offset] == '{') {
             hashmap_t* value_obj = parse_object(json, size, offset);
-            if (!value_obj) goto Error;
+            if (!value_obj) 
+                FREE;
             hmap_put(obj, key, value_obj, sizeof(hashmap_t), (free_value_ptr_t)hmap_free, FALSE);
         } 
         else if (json[*offset] == '[') {
             obj_array_t* value_arr = parse_array(json, size, offset);
-            if (!value_arr) goto Error;
+            if (!value_arr)
+                FREE;
             hmap_put(obj, key, value_arr, sizeof(obj_array_t), (free_value_ptr_t)objarr_free, FALSE);
         } 
         else if (json[*offset] == '\'' || json[*offset] == '"') {
-            if (!retrieve_str(json, size, offset, value_str)) goto Error;
+            if (!retrieve_str(json, size, offset, value_str))
+                FREE;
             hmap_put(obj, key, value_str, str_max_size, free, TRUE);
         } 
         else 
-            goto Error;
+            FREE;
 
         ++(*offset);
-        if (!skip_blank(json, size, offset)) goto Error;
+        if (!skip_blank(json, size, offset))
+            FREE;
 
         if (json[*offset] == ',') continue;
         if (json[*offset] == '}') break;
-        goto Error;
+
+        WERR_FREE("'%c': expected ',' or '}' at index %lu", json[*offset], *offset);
     }
     return obj;
 
@@ -172,7 +197,7 @@ hashmap_t* JSON_parse(const char *json, size_t size)
     size_t offset = 0;
     skip_blank(json, size, &offset);
     if (json[offset] != '{') 
-        return NULL;
+        WERR_RET(NULL, "'%c': expected '{' at index %lu", json[offset], offset);
 
     hashmap_t* result = parse_object(json, size, &offset);
     return result;

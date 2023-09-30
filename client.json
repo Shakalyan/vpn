@@ -18,4 +18,4 @@
         "setup": "./local_client.sh add",
         "cleanup": "./local_client.sh del"
     }
-}
+} 

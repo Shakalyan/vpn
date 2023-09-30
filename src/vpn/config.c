@@ -126,6 +126,7 @@ int parse_server_conf(const char* path, server_conf_t* server_conf, network_conf
     return TRUE;
     
 Error:
+    fprintf(stderr, "%s\n", get_ujson_err());
     free(json);
     hmap_free(map);
     return FALSE;
@@ -137,7 +138,6 @@ int parse_client_conf(const char* path, client_conf_t* client_conf, network_conf
     hashmap_t* map = NULL;
     
     IF_NOT_EXIT(read_file(path, &json, &json_size), "Can't read config file");
-
     map = JSON_parse(json, json_size);
     IF_NULL_EXIT(map, "Config syntax is invalid");
 
@@ -195,6 +195,7 @@ int parse_client_conf(const char* path, client_conf_t* client_conf, network_conf
     return TRUE;
     
 Error:
+    fprintf(stderr, "%s\n", get_ujson_err());
     free(json);
     hmap_free(map);
     return FALSE;
