@@ -1,7 +1,10 @@
 COMPILER = gcc
 LANGUAGE = c
 
-SOURCES = main vpn/tunnel vpn/server vpn/client vpn/config vpn/vpndef crypt/RSA utils/hashmap utils/json
+SOURCES = 	main \
+			vpn/tunnel vpn/server vpn/client vpn/config vpn/vpndef vpn/args \
+			utils/hashmap utils/json utils/system \
+			crypt/RSA
 LIBS = -lcrypto
 SUBDIRS = vpn crypt utils
 MKSUBDIRS = $(addprefix $(OBJPATH)/, $(SUBDIRS))
