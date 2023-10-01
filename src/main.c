@@ -23,7 +23,7 @@ void cleanup_network()
 {
     if (!net_cleanup_cmd) return;
     if (run_cmd(net_cleanup_cmd) != 0)
-        fprintf(stderr, "Failed to cleanup network");
+        fprintf(stderr, "Failed to cleanup network\n");
 }
 
 void handle_sigterm(int sig) 

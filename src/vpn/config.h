@@ -26,6 +26,7 @@ typedef struct sc_client_conf_t {
 typedef struct server_conf_t {
     interface_conf_t interface;
     sc_client_conf_t* clients;
+    size_t clients_size;
     char prikey[MAX_STR_SIZE];
     int port;
 } server_conf_t;

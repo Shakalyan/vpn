@@ -18,7 +18,7 @@
     ],
 
     "network": {
-        "setup": "./net_server.sh add",
-        "cleanup": "./net_server.sh del"
+        "setup": "sudo ./net_server.sh add",
+        "cleanup": "sudo ./net_server.sh del"
     }
 }

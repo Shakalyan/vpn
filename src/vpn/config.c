@@ -117,6 +117,7 @@ int parse_server_conf(const char* path, server_conf_t* server_conf, network_conf
     IF_NULL_EXIT(clients, "Clients configuration is not present");
 
     free(server_conf->clients);
+    server_conf->clients_size = clients->size;
     server_conf->clients = malloc(sizeof(sc_client_conf_t) * clients->size);
     for (int i = 0; i < clients->size; ++i) {
         char* ip = (char*)hmap_get(clients->objs[i], "ip");

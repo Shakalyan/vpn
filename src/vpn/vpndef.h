@@ -3,20 +3,20 @@
 
 #include <stdio.h>
 
-#define ERROR_FREE_MARK Error
+#define TRUE 1
+#define FALSE 0
+typedef char bool;
 
-#define EXIT_LOG_IF(CONDITION, MESSAGE) {   \
-    if (CONDITION) {                        \
-        fprintf(stderr, "%s\n", MESSAGE);   \
-        goto ERROR_FREE_MARK;               \
-    }                                       \
+#define FREE goto Error
+
+#define WERR_FREE(TEMPLATE, ...) {          \
+    fprintf(stderr, TEMPLATE, __VA_ARGS__); \
+    FREE;                                   \
 }
 
-#define EXIT_LOG_ERRNO_IF(CONDITION, MESSAGE) { \
-    if (CONDITION) {                            \
-        perror(MESSAGE);                        \
-        goto ERROR_FREE_MARK;                   \
-    }                                           \
+#define WERRS_FREE(MSG) {       \
+    fprintf(stderr, "%s", MSG); \
+    FREE;                       \
 }
 
 #endif
