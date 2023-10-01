@@ -18,7 +18,7 @@
     ],
 
     "network": {
-        "setup": "./local_server.sh add",
-        "cleanup": "./local_server.sh del"
+        "setup": "./net_server.sh add",
+        "cleanup": "./net_server.sh del"
     }
 }

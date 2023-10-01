@@ -33,10 +33,10 @@ $(OBJPATH)/%$(OPTSUFF): $(SRCPATH)/%.$(LANGUAGE) $(SRCPATH)/%.h
 	$(COMPILER) $(OPTFLGS) $(LIBS) -c -o $@ $<
 
 debug-compile: $(DBGOBJ)
-	$(COMPILER) $(DBGFLGS) $(LIBS) -o $(DBGBINP) $^
+	$(COMPILER) $(DBGFLGS) -o $(DBGBINP) $^ $(LIBS)
 
 optimized-compile: $(OPTOBJ)
-	$(COMPILER) $(OPTFLGS) $(LIBS) -o $(OPTBINP) $^
+	$(COMPILER) $(OPTFLGS) -o $(OPTBINP) $^ $(LIBS)
 
 debug: debug-compile
 	$(DBGBINP)
