@@ -44,12 +44,17 @@ typedef struct client_conf_t {
 } client_conf_t;
 
 
-server_conf_t* server_conf_alloc(size_t clients_size);
-
 int parse_server_conf(const char* path, server_conf_t* server_conf, network_conf_t* network_conf);
 
 int parse_client_conf(const char* path, client_conf_t* client_conf, network_conf_t* network_conf);
 
+server_conf_t* server_conf_alloc(size_t clients_size);
 void server_conf_free(server_conf_t* conf);
+
+client_conf_t* client_conf_alloc();
+void client_conf_free(client_conf_t* conf);
+
+network_conf_t* network_conf_alloc();
+void network_conf_free(network_conf_t* conf);
 
 #endif

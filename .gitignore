@@ -1,5 +1,6 @@
 bin/
 .vscode/
+keys/
 newmodule.sh
 makeserver.sh
 test.sh

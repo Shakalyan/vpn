@@ -9,6 +9,7 @@
 #include <linux/ip.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include "../utils/system.h"
 
 #define CLIENTS_CNT 1
 
@@ -70,17 +71,22 @@ static client_t* find_client(client_t* clients, in_addr_t daddr)
     return NULL;
 }
 
-int start_server(server_conf_t* conf) 
+int start_server(server_conf_t* server_conf, network_conf_t* network_conf) 
 {
-    int tun_fd = create_tun(conf->interface.name, conf->interface.ip, conf->interface.mask);
+    int tun_fd = create_tun(server_conf->interface.name, server_conf->interface.ip, server_conf->interface.mask);
     if (tun_fd < 0) {
         printf("Create tun error\n");
         return -1;
     }
 
-    int socket_fd = setup_socket(conf->port);
+    int socket_fd = setup_socket(server_conf->port);
     if (socket_fd < 0) {
         printf("Create socket error\n");
+        return -1;
+    }
+
+    if (run_cmd(network_conf->setup) != 0) {
+        printf("Network setup error\n");
         return -1;
     }
 
@@ -95,7 +101,7 @@ int start_server(server_conf_t* conf)
 
     struct in_addr helper_addr;
 
-    char* buffer = malloc(conf->interface.MTU);
+    char* buffer = malloc(server_conf->interface.MTU);
     while (1) {
         memset(&client_addr, 0, sizeof(client_addr));
 
@@ -105,7 +111,7 @@ int start_server(server_conf_t* conf)
         select(max_fd+1, &read_fds, NULL, NULL, NULL);
 
         if (FD_ISSET(socket_fd, &read_fds)) {
-            int recv_cnt = recvfrom(socket_fd, buffer, conf->interface.MTU, 0, (struct sockaddr*)&client_addr, &client_addr_len);
+            int recv_cnt = recvfrom(socket_fd, buffer, server_conf->interface.MTU, 0, (struct sockaddr*)&client_addr, &client_addr_len);
             if (recv_cnt < 0) {
                 perror("recvfrom socket");
                 return -1;
@@ -125,7 +131,7 @@ int start_server(server_conf_t* conf)
         }
 
         if (FD_ISSET(tun_fd, &read_fds)) {
-            int read_cnt = read(tun_fd, buffer, conf->interface.MTU);
+            int read_cnt = read(tun_fd, buffer, server_conf->interface.MTU);
             if (read_cnt < 0) {
                 perror("read from tun");
                 return -1;

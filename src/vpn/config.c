@@ -55,7 +55,32 @@ server_conf_t* server_conf_alloc(size_t clients_size)
 
 void server_conf_free(server_conf_t* conf) 
 {
+    if (!conf) return;
     free(conf->clients);
+    free(conf);
+}
+
+client_conf_t* client_conf_alloc() 
+{
+    client_conf_t* conf = malloc(sizeof(client_conf_t));
+    return conf;
+}
+
+void client_conf_free(client_conf_t* conf) 
+{
+    if (!conf) return;
+    free(conf);
+}
+
+network_conf_t* network_conf_alloc() 
+{
+    network_conf_t* conf = malloc(sizeof(network_conf_t));
+    return conf;
+}
+
+void network_conf_free(network_conf_t* conf) 
+{
+    if (!conf) return;
     free(conf);
 }
 

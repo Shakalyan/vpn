@@ -6,7 +6,7 @@
     },
 
     "client": {
-        "prikey": "path to client prikey",
+        "prikey": "./keys/cprivate.key",
         "interface": {
             "name": "",
             "ip": "10.10.0.2",
@@ -15,7 +15,7 @@
     },
 
     "network": {
-        "setup": "./local_client.sh add",
-        "cleanup": "./local_client.sh del"
+        "setup": "./net_client.sh add",
+        "cleanup": "./net_client.sh del"
     }
 } 

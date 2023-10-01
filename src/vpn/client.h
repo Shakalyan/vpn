@@ -3,6 +3,6 @@
 
 #include "config.h"
 
-int start_client(client_conf_t* conf);
+int start_client(client_conf_t* client_conf, network_conf_t* network_conf);
 
 #endif
