@@ -98,7 +98,7 @@ int main(int argc, char** argv)
     }
     
     if (args.keys_dir_path) {
-        return !generate_keys(args.keys_dir_path);
+        return !RSA_generate_keys(args.keys_dir_path);
     }
 
     if (args.as_server) {
