@@ -4,9 +4,9 @@ LANGUAGE = c
 SOURCES = 	main \
 			vpn/tunnel vpn/server vpn/client vpn/config vpn/vpndef vpn/args \
 			utils/hashmap utils/json utils/system \
-			crypt/RSA
+			crypto/AES crypto/RSA
 LIBS = -lcrypto
-SUBDIRS = vpn crypt utils
+SUBDIRS = vpn utils crypto
 MKSUBDIRS = $(addprefix $(OBJPATH)/, $(SUBDIRS))
 
 SRCPATH = ./src

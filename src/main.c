@@ -8,7 +8,8 @@
 #include "vpn/config.h"
 #include "vpn/args.h"
 #include "utils/system.h"
-#include "crypt/RSA.h"
+#include "crypto/AES.h"
+#include "crypto/RSA.h"
 
 #define FREE goto Error
 
@@ -97,11 +98,7 @@ int main(int argc, char** argv)
     }
     
     if (args.keys_dir_path) {
-        if (!generate_keys(args.keys_dir_path)) {
-            printf("%s\n", get_crypt_err());
-            return 1;
-        }
-        return 0;
+        return !generate_keys(args.keys_dir_path);
     }
 
     if (args.as_server) {
@@ -112,7 +109,7 @@ int main(int argc, char** argv)
     if (args.as_client) {
         start_as_client(&args);
         return 0;
-    }        
+    }
 
     return 0;
 }

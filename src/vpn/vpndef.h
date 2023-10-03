@@ -10,12 +10,17 @@ typedef char bool;
 #define FREE goto Error
 
 #define WERR_FREE(TEMPLATE, ...) {          \
-    fprintf(stderr, TEMPLATE, __VA_ARGS__); \
+    fprintf(stdout, TEMPLATE, __VA_ARGS__); \
     FREE;                                   \
 }
 
+#define WERR_RET(RET, TEMPLATE, ...) {      \
+    fprintf(stdout, TEMPLATE, __VA_ARGS__); \
+    return RET;                             \
+}
+
 #define WERRS_FREE(MSG) {       \
-    fprintf(stderr, "%s", MSG); \
+    fprintf(stdout, "%s", MSG); \
     FREE;                       \
 }
 
